@@ -29,6 +29,7 @@ from horizon import forms
 from horizon import messages
 
 from openstack_dashboard import api
+from openstack_dashboard.api import qos_levels
 from openstack_dashboard.api import cinder, nova
 from openstack_dashboard.api.base import is_service_enabled
 from openstack_dashboard.usage.quotas import (NOVA_QUOTA_FIELDS,
@@ -46,6 +47,8 @@ class UpdateProjectQuotaAction(workflows.Action):
                                         label=_("Metadata Items"))
     cores = forms.IntegerField(min_value=-1, label=_("VCPUs"))
     instances = forms.IntegerField(min_value=-1, label=_("Instances"))
+    cap_qos_level = forms.IntegerField(min_value=-1, label=_("Cap nova "
+                                                             "qos level"))
     injected_files = forms.IntegerField(min_value=-1,
                                         label=_("Injected Files"))
     injected_file_content_bytes = forms.IntegerField(min_value=-1,
@@ -383,6 +386,8 @@ class UpdateProject(workflows.Workflow):
         # update the project quota
         nova_data = dict([(key, data[key]) for key in NOVA_QUOTA_FIELDS])
         try:
+            qos_levels.check_valid_qos_level_for_quota(
+                nova_data['cap_qos_level'], request)
             nova.tenant_quota_update(request,
                                      project_id,
                                      **nova_data)

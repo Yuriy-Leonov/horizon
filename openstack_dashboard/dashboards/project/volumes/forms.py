@@ -20,6 +20,7 @@ from horizon.utils.memoized import memoized
 
 from openstack_dashboard import api
 from openstack_dashboard.api import cinder
+from openstack_dashboard.api import qos_levels
 from openstack_dashboard.usage import quotas
 from ..instances.tables import ACTIVE_STATES
 
@@ -31,6 +32,8 @@ class CreateForm(forms.SelfHandlingForm):
     type = forms.ChoiceField(label=_("Type"),
                              required=False)
     size = forms.IntegerField(min_value=1, label=_("Size (GB)"))
+    required_qos = forms.ChoiceField(label=_("Qos"),
+                                     help_text=_("Quality of Service level"))
     encryption = forms.ChoiceField(label=_("Encryption"), required=False)
     snapshot_source = forms.ChoiceField(label=_("Use snapshot as a source"),
                                         widget=SelectWidget(
@@ -43,6 +46,9 @@ class CreateForm(forms.SelfHandlingForm):
 
     def __init__(self, request, *args, **kwargs):
         super(CreateForm, self).__init__(request, *args, **kwargs)
+        self.fields['required_qos'].choices = [(qos_level, qos_level)
+                                               for qos_level in
+                                               qos_levels.qos_levels]
         volume_types = cinder.volume_type_list(request)
         self.fields['type'].choices = [("", "")] + \
                                       [(type.name, type.name)
@@ -100,6 +106,16 @@ class CreateForm(forms.SelfHandlingForm):
                 exceptions.handle(request, _("Unable to retrieve "
                         "volume snapshots."))
 
+    def populate_required_qos_choices(self, request, context):
+        try:
+            required_qos = [(qos_level, qos_level)
+                            for qos_level in qos_levels.qos_levels]
+        except:
+            required_qos = []
+            exceptions.handle(request,
+                              _('Unable to retrieve required qos.'))
+        return required_qos
+
     def handle(self, request, data):
         try:
             # FIXME(johnp): cinderclient currently returns a useless
@@ -146,7 +162,8 @@ class CreateForm(forms.SelfHandlingForm):
                                           data['description'],
                                           data['type'],
                                           snapshot_id=snapshot_id,
-                                          metadata=metadata)
+                                          metadata=metadata,
+                                          required_qos=data['required_qos'])
             message = 'Creating volume "%s"' % data['name']
             messages.info(request, message)
             return volume

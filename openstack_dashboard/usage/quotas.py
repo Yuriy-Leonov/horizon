@@ -16,6 +16,7 @@ NOVA_QUOTA_FIELDS = ("metadata_items",
                      "floating_ips",
                      "fixed_ips",
                      "security_groups",
+                     "cap_qos_level",
                      "security_group_rules",)
 
 CINDER_QUOTA_FIELDS = ("volumes",

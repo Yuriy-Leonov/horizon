@@ -317,6 +317,7 @@ def data(TEST):
                       injected_files='1',
                       cores='10',
                       security_groups='10',
+                      cap_qos_level='1',
                       security_group_rules='20')
     quota = quotas.QuotaSet(quotas.QuotaSetManager(None), quota_data)
     TEST.quotas.nova = QuotaSetWrapper(quota)

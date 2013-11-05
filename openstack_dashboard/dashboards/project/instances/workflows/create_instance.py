@@ -31,6 +31,7 @@ from horizon import workflows
 from openstack_dashboard import api
 from openstack_dashboard.api import cinder
 from openstack_dashboard.api import glance
+from openstack_dashboard.api import qos_levels
 from openstack_dashboard.usage import quotas
 
 
@@ -184,6 +185,8 @@ class SetInstanceDetailsAction(workflows.Action):
                                min_value=1,
                                initial=1,
                                help_text=_("Number of instances to launch."))
+    required_qos = forms.ChoiceField(label=_("Qos"),
+                                     help_text=_("Quality of Service level"))
 
     class Meta:
         name = _("Details")
@@ -296,6 +299,16 @@ class SetInstanceDetailsAction(workflows.Action):
                               _('Unable to retrieve instance flavors.'))
         return sorted(flavor_list)
 
+    def populate_required_qos_choices(self, request, context):
+        try:
+            required_qos = [(qos_level, qos_level)
+                            for qos_level in qos_levels.qos_levels]
+        except:
+            required_qos = []
+            exceptions.handle(request,
+                              _('Unable to retrieve required qos.'))
+        return required_qos
+
     def get_help_text(self):
         extra = {}
         try:
@@ -312,7 +325,8 @@ class SetInstanceDetailsAction(workflows.Action):
 
 class SetInstanceDetails(workflows.Step):
     action_class = SetInstanceDetailsAction
-    contributes = ("source_type", "source_id", "name", "count", "flavor")
+    contributes = ("source_type", "source_id", "name", "count", "flavor",
+                   "required_qos")
 
     def prepare_action_context(self, request, context):
         if 'source_type' in context and 'source_id' in context:
@@ -516,7 +530,8 @@ class LaunchInstance(workflows.Workflow):
                                    context['security_group_ids'],
                                    dev_mapping,
                                    nics=nics,
-                                   instance_count=int(context['count']))
+                                   instance_count=int(context['count']),
+                                   required_qos=context['required_qos'])
             return True
         except:
             exceptions.handle(request)

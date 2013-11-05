@@ -54,6 +54,7 @@ class ServicessViewTests(test.BaseAdminViewTests):
                                  ['<Quota: (injected_file_content_bytes, 1)>',
                                  '<Quota: (metadata_items, 1)>',
                                  '<Quota: (injected_files, 1)>',
+                                 '<Quota: (cap_qos_level, 1)>',
                                  '<Quota: (gigabytes, 1000)>',
                                  '<Quota: (ram, 10000)>',
                                  '<Quota: (floating_ips, 1)>',

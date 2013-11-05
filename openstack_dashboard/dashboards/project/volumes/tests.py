@@ -27,6 +27,7 @@ from mox import IsA
 
 from openstack_dashboard import api
 from openstack_dashboard.api import cinder
+from openstack_dashboard.api import qos_levels
 from openstack_dashboard.test import helpers as test
 from openstack_dashboard.usage import quotas
 
@@ -45,6 +46,7 @@ class VolumeViewTests(test.TestCase):
                     'method': u'CreateForm',
                     'type': volume_type.name,
                     'size': 50,
+                    'required_qos': u'{}'.format(qos_levels.BRONZE),
                     'snapshot_source': ''}
 
         cinder.volume_type_list(IsA(http.HttpRequest)).\
@@ -58,6 +60,7 @@ class VolumeViewTests(test.TestCase):
                              formData['description'],
                              formData['type'],
                              metadata={},
+                             required_qos=qos_levels.BRONZE,
                              snapshot_id=None).AndReturn(volume)
 
         self.mox.ReplayAll()
@@ -83,6 +86,7 @@ class VolumeViewTests(test.TestCase):
                     'method': u'CreateForm',
                     'size': 50,
                     'type': '',
+                    'required_qos': u'{}'.format(qos_levels.BRONZE),
                     'snapshot_source': snapshot.id}
 
         # first call- with url param
@@ -99,6 +103,7 @@ class VolumeViewTests(test.TestCase):
                              formData['description'],
                              '',
                              metadata={},
+                             required_qos=qos_levels.BRONZE,
                              snapshot_id=snapshot.id).\
                              AndReturn(volume)
         # second call- with dropdown
@@ -115,6 +120,7 @@ class VolumeViewTests(test.TestCase):
                              formData['description'],
                              '',
                              metadata={},
+                             required_qos=qos_levels.BRONZE,
                              snapshot_id=snapshot.id).\
                              AndReturn(volume)
 
@@ -146,6 +152,7 @@ class VolumeViewTests(test.TestCase):
         formData = {'name': u'A Volume I Am Making',
                     'description': u'This is a volume I am making for a test.',
                     'method': u'CreateForm',
+                    'required_qos': u'{}'.format(qos_levels.BRONZE),
                     'size': 20, 'snapshot_source': snapshot.id}
 
         cinder.volume_type_list(IsA(http.HttpRequest)).\
@@ -175,6 +182,7 @@ class VolumeViewTests(test.TestCase):
         formData = {'name': u'This Volume Is Huge!',
                     'description': u'This is a volume that is just too big!',
                     'method': u'CreateForm',
+                    'required_qos': u'{}'.format(qos_levels.BRONZE),
                     'size': 5000}
 
         cinder.volume_type_list(IsA(http.HttpRequest)).\
@@ -201,6 +209,7 @@ class VolumeViewTests(test.TestCase):
         formData = {'name': u'Too Many...',
                     'description': u'We have no volumes left!',
                     'method': u'CreateForm',
+                    'required_qos': u'{}'.format(qos_levels.BRONZE),
                     'size': 10}
 
         cinder.volume_type_list(IsA(http.HttpRequest)).\
@@ -232,6 +241,7 @@ class VolumeViewTests(test.TestCase):
                     'method': u'CreateForm',
                     'type': volume_type.name,
                     'size': 50,
+                    'required_qos': u'{}'.format(qos_levels.BRONZE),
                     'snapshot_source': '',
                     'encryption': u'LUKS'}
 
@@ -250,6 +260,7 @@ class VolumeViewTests(test.TestCase):
                              formData['description'],
                              formData['type'],
                              metadata={'encryption': formData['encryption']},
+                             required_qos=qos_levels.BRONZE,
                              snapshot_id=None).AndReturn(volume)
 
         self.mox.ReplayAll()
@@ -273,6 +284,7 @@ class VolumeViewTests(test.TestCase):
                     'method': u'CreateForm',
                     'type': volume_type.name,
                     'size': 50,
+                    'required_qos': u'{}'.format(qos_levels.BRONZE),
                     'snapshot_source': '',
                     'encryption': u'LUKS'}
 

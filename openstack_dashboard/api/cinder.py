@@ -89,10 +89,11 @@ def volume_get(request, volume_id):
 
 
 def volume_create(request, size, name, description, volume_type,
-                  snapshot_id=None, metadata=None):
+                  snapshot_id=None, metadata=None, required_qos=None):
     return cinderclient(request).volumes.create(size, display_name=name,
             display_description=description, volume_type=volume_type,
-            snapshot_id=snapshot_id, metadata=metadata)
+            snapshot_id=snapshot_id, metadata=metadata,
+            required_qos=required_qos)
 
 
 def volume_delete(request, volume_id):

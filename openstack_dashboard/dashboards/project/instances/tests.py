@@ -29,6 +29,7 @@ from mox import IsA, IgnoreArg
 
 from openstack_dashboard import api
 from openstack_dashboard.api import cinder
+from openstack_dashboard.api import qos_levels
 from openstack_dashboard.test import helpers as test
 from openstack_dashboard.usage import quotas
 from .tables import LaunchLink
@@ -853,6 +854,7 @@ class InstanceTests(test.TestCase):
         keypair = self.keypairs.first()
         server = self.servers.first()
         volume = self.volumes.first()
+        required_qos = qos_levels.BRONZE
         sec_group = self.security_groups.first()
         customization_script = 'user data'
         device_name = u'vda'
@@ -893,6 +895,7 @@ class InstanceTests(test.TestCase):
                                [sec_group.name],
                                block_device_mapping,
                                nics=nics,
+                               required_qos=required_qos,
                                instance_count=IsA(int))
 
         self.mox.ReplayAll()
@@ -910,6 +913,7 @@ class InstanceTests(test.TestCase):
                      'volume_id': volume_choice,
                      'device_name': device_name,
                      'network': self.networks.first().id,
+                     'required_qos': required_qos,
                      'count': 1}
         url = reverse('horizon:project:instances:launch')
         res = self.client.post(url, form_data)
@@ -930,6 +934,7 @@ class InstanceTests(test.TestCase):
         keypair = self.keypairs.first()
         server = self.servers.first()
         volume = self.volumes.first()
+        required_qos = qos_levels.BRONZE
         sec_group = self.security_groups.first()
         customization_script = 'user data'
         device_name = u'vda'
@@ -977,6 +982,7 @@ class InstanceTests(test.TestCase):
                      'volume_type': 'volume_id',
                      'volume_id': volume_choice,
                      'device_name': device_name,
+                     'required_qos': required_qos,
                      'count': 1}
         url = reverse('horizon:project:instances:launch')
         res = self.client.post(url, form_data)
@@ -1047,6 +1053,7 @@ class InstanceTests(test.TestCase):
         image = self.images.first()
         keypair = self.keypairs.first()
         server = self.servers.first()
+        required_qos = qos_levels.BRONZE
         sec_group = self.security_groups.first()
         customization_script = 'userData'
         nics = [{"net-id": self.networks.first().id, "v4-fixed-ip": ''}]
@@ -1082,6 +1089,7 @@ class InstanceTests(test.TestCase):
                                [sec_group.name],
                                None,
                                nics=nics,
+                               required_qos=required_qos,
                                instance_count=IsA(int)) \
                       .AndRaise(self.exceptions.keystone)
 
@@ -1098,6 +1106,7 @@ class InstanceTests(test.TestCase):
                      'groups': sec_group.name,
                      'volume_type': '',
                      'network': self.networks.first().id,
+                     'required_qos': required_qos,
                      'count': 1}
         url = reverse('horizon:project:instances:launch')
         res = self.client.post(url, form_data)
